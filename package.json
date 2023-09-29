@@ -4,19 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "flatfile develop typescript/index.ts",
-    "deploy": "flatfile deploy typescript/index.ts",
-    "create-workbook": "bash ./scripts/create-workbook.sh"
+    "dev": "flatfile develop src/index.ts",
+    "deploy": "flatfile deploy src/index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@flatfile/api": "1.5.24",
-    "@flatfile/listener": "0.3.15",
-    "@flatfile/plugin-record-hook": "1.1.1",
-    "axios": "^1.5.0",
-    "flatfile": "^3.5.9"
+    "@flatfile/api": "^1.5.19",
+    "@flatfile/listener": "^0.3.11",
+    "@flatfile/plugin-record-hook": "^1.0.3",
+    "@flatfile/plugin-xlsx-extractor": "^1.6.0",
+    "axios": "^1.4.0",
+    "flatfile": "^3.5.8",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "@types/node": "^18.16.0"
