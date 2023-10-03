@@ -110,11 +110,14 @@ export const employeeSheetMini: Flatfile.SheetConfig = {
   actions: [
     {
       operation: 'mergeSelectedRecords',
+      tooltip:
+        'Merge multiple selected records into a single record. The process prioritizes newer, non-empty values and combines them into a primary record. The original merged records are then deleted, leaving only the combined record.',
       requireSelection: true,
       mode: 'foreground',
       label: 'Merge Selected Records',
       description: 'This will merge selected records together.',
       primary: true,
+      confirm: true,
     },
   ],
 }
