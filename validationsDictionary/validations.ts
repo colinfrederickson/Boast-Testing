@@ -1,4 +1,5 @@
 import * as moment from 'moment'
+import { regions } from '../src/data/regions'
 
 // Type for ValidationResult
 type ValidationResult = {
@@ -207,6 +208,32 @@ function isValidUrl(value: string): ValidationResult {
   return {} // The value is a valid URL
 }
 
+function isValidRegionForCountry(
+  regionValue: string,
+  countryValue: string
+): ValidationResult {
+  if (regionValue === null || countryValue === null) {
+    return {}
+  }
+
+  const validRegionsForCountry = regions.filter(
+    (region) => region.country === countryValue
+  )
+  const isValid = validRegionsForCountry.some(
+    (region) => region.value === regionValue
+  )
+
+  if (!isValid) {
+    return {
+      error: formatError(
+        regionValue,
+        `is not a valid region for ${countryValue}.`
+      ),
+    }
+  }
+  return {}
+}
+
 // Grouped export
 export {
   checkBoolean,
@@ -219,4 +246,5 @@ export {
   isValidEmail,
   isValidPhoneNumber,
   isValidUrl,
+  isValidRegionForCountry,
 }
