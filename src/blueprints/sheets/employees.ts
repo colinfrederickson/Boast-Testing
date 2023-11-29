@@ -156,5 +156,15 @@ export const employeeSheetMini: Flatfile.SheetConfig = {
         fields: inputFormFields,
       },
     },
+    {
+      operation: 'createSnapshot',
+      tooltip: 'Create a snapshot of the current data.',
+      mode: 'foreground',
+      label: 'Create Snapshot',
+      description:
+        'This will create a snapshot of the current data for comparison.',
+      primary: true,
+      confirm: true,
+    },
   ],
 }
