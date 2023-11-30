@@ -2,8 +2,8 @@ import { FlatfileListener } from '@flatfile/listener'
 import api from '@flatfile/api'
 
 // Separate function to handle the snapshot creation
-async function createSnapshot(sheetId) {
-  return await api.snapshots.createSnapshot({ sheetId })
+async function createSnapshot(sheetId, label = '') {
+  return await api.snapshots.createSnapshot({ sheetId, label })
 }
 
 export default function (listener: FlatfileListener) {
@@ -33,8 +33,14 @@ export default function (listener: FlatfileListener) {
 
         console.log(`Creating snapshot for sheetId: ${sheetId}`)
 
-        // Call the createSnapshot function
-        const response = await createSnapshot(sheetId)
+        // Retrieve the label from the input form
+        const job = await api.jobs.get(jobId)
+        console.log('Job:', job)
+        const label = job.data.input.snapshotLabel
+        console.log('Snapshot Label:', label)
+
+        // Call the createSnapshot function with the user-provided label
+        const response = await createSnapshot(sheetId, label)
 
         if (response && response.data && response.data.id) {
           console.log(`Snapshot created successfully: ${response.data.id}`)
@@ -43,7 +49,7 @@ export default function (listener: FlatfileListener) {
             info: 'Snapshot created successfully.',
             outcome: {
               acknowledge: true,
-              message: `Snapshot of sheet ${sheetId} created successfully.`,
+              message: `Snapshot of sheet ${sheetId} created successfully with label ${label}.`,
             },
           })
         } else {

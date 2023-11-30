@@ -165,6 +165,17 @@ export const employeeSheetMini: Flatfile.SheetConfig = {
         'This will create a snapshot of the current data for comparison.',
       primary: true,
       confirm: true,
+      inputForm: {
+        type: 'simple', // Assuming a simple form type
+        fields: [
+          {
+            key: 'snapshotLabel',
+            label: 'Snapshot Label',
+            type: 'string',
+            description: 'Enter a label for the snapshot',
+          },
+        ],
+      },
     },
   ],
 }
