@@ -11,6 +11,10 @@ export default function (listener: FlatfileListener) {
     configure.on('job:ready', async (event) => {
       const { jobId, sheetId } = event.context
 
+      console.log(
+        `Starting snapshot creation job: Job ID - ${jobId}, Sheet ID - ${sheetId}`
+      )
+
       // Input Validation
       if (typeof sheetId !== 'string' || sheetId.trim() === '') {
         console.error('Invalid sheetId provided')
@@ -26,55 +30,78 @@ export default function (listener: FlatfileListener) {
       }
 
       try {
+        // Initial Acknowledgement
         await api.jobs.ack(jobId, {
-          info: 'Preparing to Create Snapshot...',
+          info: 'Initiating snapshot creation...',
           progress: 10,
         })
 
-        console.log(`Creating snapshot for sheetId: ${sheetId}`)
+        // Fetching Sheet Details
+        await api.jobs.ack(jobId, {
+          info: 'Fetching sheet details...',
+          progress: 30,
+        })
+        const sheet = await api.sheets.get(sheetId)
+        const sheetName = sheet.data.name
 
-        // Retrieve the label from the input form
+        // Retrieving Job Details for Snapshot Label
+        await api.jobs.ack(jobId, {
+          info: 'Retrieving snapshot label...',
+          progress: 50,
+        })
         const job = await api.jobs.get(jobId)
-        console.log('Job:', job)
-        const label = job.data.input.snapshotLabel
-        console.log('Snapshot Label:', label)
+        const label = job.data.input?.snapshotLabel || ''
 
-        // Call the createSnapshot function with the user-provided label
+        // Snapshot Creation
+        await api.jobs.ack(jobId, {
+          info: 'Creating snapshot...',
+          progress: 70,
+        })
         const response = await createSnapshot(sheetId, label)
 
         if (response && response.data && response.data.id) {
-          console.log(`Snapshot created successfully: ${response.data.id}`)
+          // Snapshot Creation Complete
+          await api.jobs.ack(jobId, {
+            info: 'Snapshot created successfully.',
+            progress: 100,
+          })
+
+          // Completion Message
+          let successMessage = `Snapshot of sheet '${sheetName}' created successfully`
+          if (label) {
+            successMessage += ` with label '${label}'`
+          }
+          successMessage +=
+            '. You can view this snapshot in the Version History panel.'
 
           await api.jobs.complete(jobId, {
-            info: 'Snapshot created successfully.',
             outcome: {
               acknowledge: true,
-              message: `Snapshot of sheet ${sheetId} created successfully with label ${label}.`,
+              message: successMessage,
             },
           })
+          console.log(`Job ${jobId} completed successfully`)
         } else {
           throw new Error('Snapshot creation failed')
         }
       } catch (error) {
         // More detailed error handling
         if (error.response) {
-          // API-specific errors
           console.error(
             `API Error: ${error.response.status} - ${JSON.stringify(
               error.response.data
             )}`
           )
         } else if (error.request) {
-          // Errors related to the request made but no response received
           console.error(`Request Error: ${error.request}`)
         } else {
-          // General errors
           console.error(`Error: ${error.message}`)
         }
 
         await api.jobs.fail(jobId, {
           info: 'Error occurred during the snapshot creation.',
         })
+        console.log(`Job ${jobId} failed due to error`)
       }
     })
   })
